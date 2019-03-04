@@ -22,7 +22,7 @@ $ ctest
 ```
 
 
-# Cases Study
+# Case Study
 
 There are several kinds of memory issues that AddressSanitizer could dectect.
 
@@ -95,7 +95,7 @@ int main() {
 **NOTE**: There might be false-negative cases:
 
   * The freed memory has already been allocated to and used in another context. This leads to unexpected memory overwrite or data corruption.
-  * The internal memory buffer used in ASAN is not sufficient. You could adjust this buffer to a larger value via the option `quarantine_size_mb`.
+  * The internal memory buffer of ASAN is not sufficient. You could adjust this buffer to a larger size via the option `quarantine_size_mb`.
 
 ## Double Free
 
@@ -114,7 +114,7 @@ int main() {
 
 **NOTE**: Often, double-free is caused by wrong logics, but it could also be due to race-conditions, e.g. concurrent assigment to the same `std::string`.
 
-**NOTE**: This might be reported as heap-use-after-free when the same address was freed, then allocated again, then freed again, and finally accessed.
+**NOTE**: This might be reported as heap-use-after-free when the same address was freed, then allocated again, then freed again, and finally accessed, in interleaved contexts.
 
 ## Out of Bound Memory Access
 
@@ -157,7 +157,7 @@ int main() {
 
 ## Mismatch Between Allocation and Deallocation
 
-For example, `new` vs. `free`, `malloc` vs. `delete`, `new[]` vs. `delete`, etc.
+Such as `new` vs. `free`, `malloc` vs. `delete`, `new[]` vs. `delete`, etc.
 
 ```cpp
 #include <iostream>
