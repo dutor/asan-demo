@@ -1,5 +1,6 @@
 add_subdirectory(asan-options)
 add_subdirectory(direct-leak)
+add_subdirectory(indirect-leak)
 add_subdirectory(double-free)
 add_subdirectory(alloc-dealloc-mismatch)
 add_subdirectory(heap-use-after-free)
