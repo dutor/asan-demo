@@ -104,7 +104,7 @@ int main() {
 }
 ```
 
-**NOTE**: Often, double-free is caused by wrong logics, but it could also be due to race-conditions, e.g. concurrent assigment to the same `std::string`.
+**NOTE**: Often, double-free is caused by flawed logics, but it could also be due to race-conditions, e.g. concurrent assigment to the same `std::string`.
 
 **NOTE**: This might be reported as heap-use-after-free when the same address was freed, then allocated again, then freed again, and finally accessed, in interleaved contexts.
 
@@ -181,6 +181,57 @@ int main() {
 }
 ```
 
+outputs:
+```
+=================================================================
+==39536==ERROR: AddressSanitizer: stack-use-after-return on address 0x7f7caa50041f at pc 0x0000004012fd bp 0x7ffd988eb4b0 sp 0x7ffd988eb4a0
+WRITE of size 1 at 0x7f7caa50041f thread T0
+    #0 0x4012fc in main src/stack-use-after-return/stack-use-after-return.cpp:11
+    #1 0x7f7cad964412 in __libc_start_main ../csu/libc-start.c:308
+    #2 0x40111d in _start (build/bin/stack-use-after-return+0x40111d)
+
+Address 0x7f7caa50041f is located in stack of thread T0 at offset 1055 in frame
+    #0 0x4011e5 in use_after_scope(unsigned long) src/stack-use-after-return/stack-use-after-return.cpp:3
+
+  This frame has 1 object(s):
+    [32, 1056) 'array' <== Memory access at offset 1055 is inside this variable
+HINT: this may be a false positive if your program uses some custom stack unwind mechanism or swapcontext
+      (longjmp and C++ exceptions *are* supported)
+SUMMARY: AddressSanitizer: stack-use-after-return src/stack-use-after-return/stack-use-after-return.cpp:11 in main
+Shadow bytes around the buggy address:
+  0x0ff015498030: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5
+  0x0ff015498040: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5
+  0x0ff015498050: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5
+  0x0ff015498060: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5
+  0x0ff015498070: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5
+=>0x0ff015498080: f5 f5 f5[f5]f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5
+  0x0ff015498090: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5
+  0x0ff0154980a0: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5
+  0x0ff0154980b0: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5
+  0x0ff0154980c0: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5
+  0x0ff0154980d0: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==39536==ABORTING
+```
+
 stack-use-after-scope:
 
 ```cpp
@@ -197,4 +248,56 @@ int main() {
     use_after_scope();
     return 0;
 }
+```
+
+outputs:
+```
+=================================================================
+==39534==ERROR: AddressSanitizer: stack-use-after-scope on address 0x7f5020f0041f at pc 0x0000004012e5 bp 0x7ffe724a7b60 sp 0x7ffe724a7b50
+READ of size 1 at 0x7f5020f0041f thread T0
+    #0 0x4012e4 in use_after_scope() src/stack-use-after-scope/stack-use-after-scope.cpp:9
+    #1 0x4013a4 in main src/stack-use-after-scope/stack-use-after-scope.cpp:13
+    #2 0x7f502438c412 in __libc_start_main ../csu/libc-start.c:308
+    #3 0x40114d in _start (build/bin/stack-use-after-scope+0x40114d)
+
+Address 0x7f5020f0041f is located in stack of thread T0 at offset 1055 in frame
+    #0 0x401215 in use_after_scope() src/stack-use-after-scope/stack-use-after-scope.cpp:3
+
+  This frame has 1 object(s):
+    [32, 1056) 'array' <== Memory access at offset 1055 is inside this variable
+HINT: this may be a false positive if your program uses some custom stack unwind mechanism or swapcontext
+      (longjmp and C++ exceptions *are* supported)
+SUMMARY: AddressSanitizer: stack-use-after-scope src/stack-use-after-scope/stack-use-after-scope.cpp:9 in use_after_scope()
+Shadow bytes around the buggy address:
+  0x0fea841d8030: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8
+  0x0fea841d8040: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8
+  0x0fea841d8050: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8
+  0x0fea841d8060: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8
+  0x0fea841d8070: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8
+=>0x0fea841d8080: f8 f8 f8[f8]f3 f3 f3 f3 00 00 00 00 00 00 00 00
+  0x0fea841d8090: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x0fea841d80a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x0fea841d80b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x0fea841d80c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x0fea841d80d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==39534==ABORTING
 ```
