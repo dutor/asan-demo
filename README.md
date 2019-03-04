@@ -35,8 +35,6 @@ Memory isn't released on exit, and isn't referred by other memory space(pointer)
 Example:
 
 ```cpp
-#include <iostream>
-
 void direct_leak() {
     new char[1024];
 }
@@ -54,8 +52,6 @@ Memory isn't released on exit, but is referred by other memory space(pointer) wh
 Example:
 
 ```cpp
-#include <iostream>
-
 void indirect_leak() {
     auto **pptr = new char*[1];     // 8 bytes leaked directly
     pptr[0] = new char[1024];       // 1024 bytes leaked indirectly
@@ -74,8 +70,6 @@ Accessing memory spaces that have already been freed.
 Example:
 
 ```cpp
-#include <iostream>
-
 char* alloc() {
     return new char[1024];
 }
@@ -102,8 +96,6 @@ int main() {
 Free the same allocated memory space more than once.
 
 ```cpp
-#include <iostream>
-
 int main() {
     auto *ptr = new char[1024];
     delete [] ptr;
@@ -123,9 +115,6 @@ Overflowed or underflowed accessing on heap or stack memory spaces.
 heap-buffer-overflow:
 
 ```cpp
-#include <iostream>
-#include <cstring>
-
 char* alloc() {
     return new char[1024];
 }
@@ -145,8 +134,6 @@ int main() {
 stack-buffer-underflow:
 
 ```cpp
-#include <iostream>
-
 int main() {
     char buffer[1024];
     fprintf(stdout, "%c\n", *(buffer - 1));
@@ -160,8 +147,6 @@ int main() {
 Such as `new` vs. `free`, `malloc` vs. `delete`, `new[]` vs. `delete`, etc.
 
 ```cpp
-#include <iostream>
-
 class Object {};
 
 Object* alloc() {
@@ -183,8 +168,6 @@ int main() {
 stack-use-after-return:
 
 ```cpp
-#include <iostream>
-
 char* use_after_scope(size_t offset) {
     char array[1024];
     char *ptr = array + offset;
@@ -201,8 +184,6 @@ int main() {
 stack-use-after-scope:
 
 ```cpp
-#include <iostream>
-
 void use_after_scope() {
     char *ptr = nullptr;
     {
