@@ -22,6 +22,7 @@ const char* __asan_default_options() {
            "intercept_tls_get_addr=1 \n"
            "symbolize_inline_frames=1 \n"
            "strict_string_checks=1 \n"
+           "check_initialization_order=1 \n"
            "detect_container_overflow=1 \n"
            "strip_path_prefix=" STRINGIFY(PROJECT_HOME) "/ \n"
            "";
