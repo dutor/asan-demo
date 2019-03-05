@@ -1,3 +1,8 @@
+# Introduction
+
+AddressSanitizer, aka. ASan, is an open source tool invented by Google that dectects memory related bugs like memory leaks and corruption.
+
+
 # Clone
 
 ```bash
