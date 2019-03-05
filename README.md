@@ -17,6 +17,23 @@ $ mkdir build
 $ cd bulid
 $ cmake ..
 $ make
+$ bin/asan-demo
+Usage: bin/asan-demo <case-name>
+Available cases:
+        alloc-dealloc-mismatch
+        direct-leak
+        double-free
+        heap-buffer-overflow
+        heap-buffer-underflow
+        heap-use-after-free
+        indirect-leak
+        stack-buffer-overflow
+        stack-buffer-underflow
+        stack-use-after-return
+        stack-use-after-scope
+        vector-overflow
+$ bin/asan-demo double-free
+...
 ```
 
 
