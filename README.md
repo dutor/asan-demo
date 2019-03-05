@@ -537,3 +537,80 @@ Shadow byte legend (one shadow byte represents 8 application bytes):
   Right alloca redzone:    cb
 ==40812==ABORTING
 ```
+
+
+## Container Overflow
+
+
+Example:
+```cpp
+void VectorOverflow() {
+    std::vector<char> v;
+    v.reserve(1024);
+    v.push_back(0);
+    v[1] = 1;
+}
+```
+
+outputs:
+```
+==40834==ERROR: AddressSanitizer: container-overflow on address 0x619000000081 at pc 0x00000040ad96 bp 0x7fffd8a322d0 sp 0x7fffd8a322c0
+WRITE of size 1 at 0x619000000081 thread T0
+    #0 0x40ad95 in VectorOverflow() src/main.cpp:85
+    #1 0x40e088 in std::_Function_handler<void (), void (*)()>::_M_invoke(std::_Any_data const&) /usr/include/c++/8/bits/std_function.h:297
+    #2 0x40d605 in std::function<void ()>::operator()() const /usr/include/c++/8/bits/std_function.h:687
+    #3 0x40b8d5 in main src/main.cpp:130
+    #4 0x7f4770b00412 in __libc_start_main ../csu/libc-start.c:308
+    #5 0x40a36d in _start (build/bin/asan-demo+0x40a36d)
+
+0x619000000081 is located 1 bytes inside of 1024-byte region [0x619000000080,0x619000000480)
+allocated by thread T0 here:
+    #0 0x7f47710ca470 in operator new(unsigned long) (/lib64/libasan.so.5+0xf1470)
+    #1 0x411bfe in __gnu_cxx::new_allocator<char>::allocate(unsigned long, void const*) /usr/include/c++/8/ext/new_allocator.h:111
+    #2 0x41011e in std::allocator_traits<std::allocator<char> >::allocate(std::allocator<char>&, unsigned long) /usr/include/c++/8/bits/alloc_traits.h:436
+    #3 0x40eddb in std::_Vector_base<char, std::allocator<char> >::_M_allocate(unsigned long) /usr/include/c++/8/bits/stl_vector.h:296
+    #4 0x40da91 in char* std::vector<char, std::allocator<char> >::_M_allocate_and_copy<std::move_iterator<char*> >(unsigned long, std::move_iterator<char*>, std::move_iterator<char*>) /usr/include/c++/8/bits/stl_vector.h:1398
+    #5 0x40cbdc in std::vector<char, std::allocator<char> >::reserve(unsigned long) /usr/include/c++/8/bits/vector.tcc:74
+    #6 0x40acf6 in VectorOverflow() src/main.cpp:83
+    #7 0x40e088 in std::_Function_handler<void (), void (*)()>::_M_invoke(std::_Any_data const&) /usr/include/c++/8/bits/std_function.h:297
+    #8 0x40d605 in std::function<void ()>::operator()() const /usr/include/c++/8/bits/std_function.h:687
+    #9 0x40b8d5 in main src/main.cpp:130
+    #10 0x7f4770b00412 in __libc_start_main ../csu/libc-start.c:308
+    #11 0x40a36d in _start (build/bin/asan-demo+0x40a36d)
+
+HINT: if you don't care about these errors you may set ASAN_OPTIONS=detect_container_overflow=0.
+If you suspect a false positive see also: https://github.com/google/sanitizers/wiki/AddressSanitizerContainerOverflow.
+SUMMARY: AddressSanitizer: container-overflow src/main.cpp:85 in VectorOverflow()
+Shadow bytes around the buggy address:
+  0x0c327fff7fc0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x0c327fff7fd0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x0c327fff7fe0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x0c327fff7ff0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x0c327fff8000: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+=>0x0c327fff8010:[01]fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+  0x0c327fff8020: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+  0x0c327fff8030: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+  0x0c327fff8040: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+  0x0c327fff8050: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+  0x0c327fff8060: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==40834==ABORTING
+```
