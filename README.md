@@ -5,13 +5,13 @@ AddressSanitizer, aka. ASan, is an open source tool invented by Google that dect
 
 # Clone
 
-```bash
+```shell
 $ git clone https://github.com/dutor/asan-demo.git
 ```
 
 
 # Build
-```bash
+```shell
 $ cd asan-demon
 $ mkdir build
 $ cd bulid
@@ -34,13 +34,6 @@ Available cases:
         vector-overflow
 $ bin/asan-demo double-free
 ...
-```
-
-
-# Run
-
-```bash
-$ ctest
 ```
 
 
