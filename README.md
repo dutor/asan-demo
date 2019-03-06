@@ -1,6 +1,6 @@
 # Introduction
 
-AddressSanitizer, aka. ASan, is an open source tool invented by Google that dectects memory related bugs like memory leaks and corruption.
+AddressSanitizer, aka. ASan, is an open source tool invented by Google that dectects memory related bugs like memory leaks and corruption. ASan is based on the compiler instrumentation combined with a runtime library.
 
 
 # Clone
@@ -37,9 +37,29 @@ $ bin/asan-demo double-free
 ```
 
 
+# Tips
+
+## How ASan Works?
+
+Please refer to this paper, ["AddressSanitizer: a fast address sanity checker"](https://www.usenix.org/system/files/conference/atc12/atc12-final39.pdf)
+
+## How to Enbale ASan in Your Own Project
+
+Currently, ASan is implemented by GCC(starting from 4.8) and Clang(starting from 3.1), the newer version the better.
+To enbale it, you have to compile your whole project with the following options:
+
+  * `-fsanitize=address`, both on compiler **AND** linker.
+  * `-g`, compile option to enable debuginfo.
+  * `-fno-omit-frame-pointer`, compile option to make the backtrace more friendly and the stack unwinding faster.
+
+
+## Don't Use With Other third-party Allocators
+
+ASan doesn't work well with some other third-party allocators, such as tcmalloc or jemalloc.
+
 # Case Study
 
-There are several kinds of memory issues that AddressSanitizer could dectect.
+There are several kinds of memory issues that AddressSanitizer is able to dectect.
 
 ## Memory Leaks
 
@@ -191,7 +211,7 @@ Shadow byte legend (one shadow byte represents 8 application bytes):
 **NOTE**: There might be false-negative cases:
 
   * The freed memory has already been allocated to and used in another context. This leads to unexpected memory overwrite or data corruption.
-  * The internal memory buffer of ASAN is not sufficient. You could adjust this buffer to a larger size via the option `quarantine_size_mb`.
+  * The internal memory buffer of ASan is not sufficient. You could adjust this buffer to a larger size via the option `quarantine_size_mb`.
 
 ## Double Free
 
