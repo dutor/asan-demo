@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <string>
 #include <cstring>
+#include <memory>
 #include <vector>
 #include <map>
 #include <functional>
@@ -71,7 +72,7 @@ void StackUseAfterReturn() {
 void StackUseAfterScope() {
     char *ptr = nullptr;
     {
-        char array[1024];
+        char array[1024] = {0};
         ptr = array + 1023;
     }
     fprintf(stderr, "%c\n", *ptr);
@@ -90,6 +91,20 @@ void AllocDeallocMismatch() {
     ::free(new std::string(__PRETTY_FUNCTION__));
 }
 
+void CyclicReference() {
+    struct Y;
+    struct X {
+        std::shared_ptr<Y> py;
+    };
+    struct Y {
+        std::shared_ptr<X> px;
+    };
+
+    auto px = std::make_shared<X>();
+    auto py = std::make_shared<Y>();
+    px->py = py;
+    py->px = px;
+}
 
 
 int main(int argc, char **argv) {
@@ -106,6 +121,7 @@ int main(int argc, char **argv) {
         {"stack-use-after-scope",   StackUseAfterScope},
         {"vector-overflow",         VectorOverflow},
         {"alloc-dealloc-mismatch",  AllocDeallocMismatch},
+        {"cyclic-reference",  CyclicReference},
     };
 
     auto print_help = [&] () {
